@@ -1,1 +1,266 @@
-EMBEDDED_PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tiong Wee Yuen — AI Sphere Resume</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background: #000; 
+      overflow: hidden; 
+      font-family: 'Courier New', monospace;
+      color: #0ff;
+    }
+    #canvas { display: block; width: 100vw; height: 100vh; }
+    #ui {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      pointer-events: none;
+      text-shadow: 0 0 12px #0ff;
+    }
+    #ui h1 {
+      font-size: 2rem;
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+    }
+    #ui .sub {
+      font-size: 0.85rem;
+      color: #8ff;
+      opacity: 0.85;
+    }
+    #info-panel {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(520px, 90vw);
+      background: rgba(0, 15, 30, 0.88);
+      border: 1px solid #0ff;
+      border-radius: 12px;
+      padding: 18px 22px;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+    }
+    #info-panel.visible { opacity: 1; }
+    #info-panel h3 {
+      color: #0ff;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    #info-panel img {
+      max-width: 80px;
+      max-height: 60px;
+      float: right;
+      margin-left: 12px;
+      border-radius: 6px;
+      background: #fff;
+    }
+    #controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(0, 20, 40, 0.6);
+      border: 1px solid #0ff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <h1>TIONG WEE YUEN</h1>
+    <div class="sub">AI SPHERE // DATA & AUTOMATION</div>
+    <div class="sub">SYSTEM ENGINEER · AI CHAMPION</div>
+  </div>
+  <div id="controls">
+    AUTO ROTATING · HOVER / CLICK nodes for details
+  </div>
+  <div id="info-panel">
+    <img id="info-img" src="" alt="" style="display:none;" />
+    <h3 id="info-title">Select a node</h3>
+    <p id="info-content">Hover or click any keyword</p>
+  </div>
+  <canvas id="canvas"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000308, 0.015);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.5, 16);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    scene.add(new THREE.AmbientLight(0x112244, 0.5));
+    const light1 = new THREE.PointLight(0x00ffff, 1.8, 50);
+    light1.position.set(5, 5, 5);
+    scene.add(light1);
+    const light2 = new THREE.PointLight(0xff00cc, 1.2, 40);
+    light2.position.set(-6, 2, -4);
+    scene.add(light2);
+
+    const coreGeo = new THREE.IcosahedronGeometry(1.6, 2);
+    const coreMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.35 });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    scene.add(core);
+
+    const glowGeo = new THREE.SphereGeometry(1.3, 32, 32);
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0x0088aa, transparent: true, opacity: 0.15 });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    scene.add(glow);
+
+    const nodesData = [
+      { title: "AI CHAMPION", content: "Lead AI agents that automate repetitive workflows.\nEliminate manual effort and scale team capacity.\nCurrent role at Unisteel Technology.", category: "work" },
+      { title: "UNISTEEL", content: "System Engineer · Jan 2026 – Present\nIskandar Puteri, Johor\n\n• Monthly stock count across Malaysia ops\n• Company-wide Power BI + Copilot dashboard\n• Real-time visibility for all departments", category: "work" },
+      { title: "POWER BI", content: "Built company-wide inventory dashboard\nusing Power BI + Microsoft Copilot.\nReal-time insights for management & teams.", category: "skill" },
+      { title: "MICROSOFT\nECOSYSTEM", content: "SharePoint · Power Automate\nPower Apps · Copilot · Cowork\nFull Microsoft 365 stack familiarity", category: "skill" },
+      { title: "RS LUMINARIES", content: "Data Analyst · Aug 2025 – Nov 2025\nJohor\n\n• Tableau dashboards on PostgreSQL\n• Python daily automation\n• Real-time business monitoring", category: "work" },
+      { title: "SPEEDRENT\nDATA ENG", content: "Data Engineer · Oct 2024 – Aug 2025\nSelangor\n\n• Python + SQL ETL pipelines\n• Gemini AI for data quality\n• cron + n8n → 80% less manual", category: "work" },
+      { title: "SPEEDRENT\nMIS", content: "Junior MIS Engineer · May 2023 – Oct 2024\n\n• Zoho CRM / Flow / Creator\n• CRM automation −70%\n• Robomotion RPA −90% workload", category: "work" },
+      { title: "PYTHON", content: "Core language for ETL, automation,\ndata cleaning, and AI agent skills.\nUsed across all recent roles.", category: "skill" },
+      { title: "SQL", content: "PostgreSQL · MySQL\nETL pipelines, data extraction,\nand BI data modeling.", category: "skill" },
+      { title: "HELP UNIVERSITY", content: "Bachelor of Information Technology (Hons)\nSecond Class Upper Division\nAug 2020 – Aug 2023\n\nData Analysis · OOP · Web · Mobile", category: "edu" },
+      { title: "新山宽柔中学", content: "Foon Yew High School (Johor Bahru)\nMain campus · Stulang Laut\nChinese independent high school", category: "edu" },
+      { title: "ETL / RPA", content: "Pipeline automation with cron, n8n,\nRobomotion RPA.\nReduced manual work by 70–90%.", category: "skill" },
+      { title: "TABLEAU", content: "Interactive dashboards on PostgreSQL\ndata at RS Luminaries.\nBusiness metrics visualization.", category: "skill" },
+      { title: "GEMINI AI", content: "Used at Speedrent to process large\ndatasets and improve data quality.", category: "skill" },
+      { title: "CONTACT", content: "+60 18-785 8574\nwee141034@gmail.com\nlinkedin.com/in/wee-yuen-tiong\nIskandar Puteri, Johor", category: "info" }
+    ];
+
+    const nodes = [];
+    const nodeGroup = new THREE.Group();
+    scene.add(nodeGroup);
+
+    nodesData.forEach((data, i) => {
+      const phi = Math.acos(-1 + (2 * i) / nodesData.length);
+      const theta = Math.sqrt(nodesData.length * Math.PI) * phi;
+      const radius = 6.8;
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 256; canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      const color = data.category === 'work' ? '#00ffff' : data.category === 'edu' ? '#ffaa00' : data.category === 'skill' ? '#88ff88' : '#ff88ff';
+      ctx.fillStyle = 'rgba(0, 20, 40, 0.75)';
+      ctx.fillRect(0, 0, 256, 128);
+      ctx.strokeStyle = color; ctx.lineWidth = 3;
+      ctx.strokeRect(4, 4, 248, 120);
+      ctx.fillStyle = color; ctx.font = 'bold 28px Courier New';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(data.title.split('\n')[0], 128, 64);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.position.set(x, y, z);
+      sprite.scale.set(2.4, 1.2, 1);
+      sprite.userData = data;
+      nodeGroup.add(sprite);
+      nodes.push(sprite);
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), new THREE.Vector3(x,y,z)]);
+      const line = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: 0x004466, transparent: true, opacity: 0.35 }));
+      nodeGroup.add(line);
+    });
+
+    let autoRotate = true;
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const infoPanel = document.getElementById('info-panel');
+    const infoTitle = document.getElementById('info-title');
+    const infoContent = document.getElementById('info-content');
+
+    const imageMap = {
+      'POWER BI': 'powerbi.jpg',
+      'PYTHON': 'python.jpg',
+      'TABLEAU': 'tableau.jpg',
+      'GEMINI AI': 'gemini.jpg',
+      'HELP UNIVERSITY': 'help.jpg',
+      'MICROSOFT\nECOSYSTEM': 'copilot.jpg',
+      'ETL / RPA': 'n8n.jpg',
+      'UNISTEEL': 'unisteel.png',
+      'SPEEDRENT\nDATA ENG': 'speedhome.png',
+      'SPEEDRENT\nMIS': 'speedhome.png'
+    };
+
+    function showInfo(data) {
+      infoTitle.textContent = data.title.replace('\n', ' ');
+      infoContent.textContent = data.content;
+      const img = document.getElementById('info-img');
+      if (imageMap[data.title]) {
+        img.src = imageMap[data.title];
+        img.style.display = 'block';
+      } else {
+        img.style.display = 'none';
+      }
+      infoPanel.classList.add('visible');
+    }
+    function hideInfo() { infoPanel.classList.remove('visible'); }
+
+    let isHovering = false;
+    function checkHover() {
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(nodes);
+      nodes.forEach(n => n.scale.set(2.4, 1.2, 1));
+      if (hits.length > 0) {
+        hits[0].object.scale.set(3.0, 1.5, 1);
+        showInfo(hits[0].object.userData);
+        document.body.style.cursor = 'pointer';
+        isHovering = true;
+      } else {
+        hideInfo();
+        document.body.style.cursor = 'default';
+        isHovering = false;
+      }
+    }
+    window.addEventListener('mousemove', e => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      checkHover();
+    });
+    window.addEventListener('click', e => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(nodes);
+      if (hits.length) {
+        showInfo(hits[0].object.userData);
+        autoRotate = false;
+        setTimeout(() => autoRotate = true, 3000);
+      }
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (autoRotate && !isHovering) {
+        nodeGroup.rotation.y += 0.0006;
+        core.rotation.y += 0.0008;
+        core.rotation.x += 0.0003;
+      }
+      glow.rotation.y += 0.001;
+      renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
